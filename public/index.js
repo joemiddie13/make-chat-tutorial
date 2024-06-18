@@ -1,8 +1,9 @@
 $(document).ready(() => {
   const socket = io.connect();
-
-  // Keep track of the current user
   let currentUser;
+  
+  // Get the online users from the server
+  socket.emit('get online users');
 
   $('#create-user-btn').click((e) => {
     e.preventDefault();
@@ -26,10 +27,24 @@ $(document).ready(() => {
     }
   });
 
+  $('#logout-btn').click((e) => {
+    e.preventDefault();
+    socket.emit('disconnect');
+    $('.main-container').css('display', 'none');
+    $('.username-form').css('display', 'flex');
+    currentUser = null;
+  });
+
   // Socket listeners
   socket.on('new user', (username) => {
     console.log(`${username} has joined the chat`);
     $('.users-online').append(`<div class="user-online">${username}</div>`);
+  });
+
+  socket.on('get online users', (onlineUsers) => {
+    for (username in onlineUsers) {
+      $('.users-online').append(`<div class="user-online">${username}</div>`);
+    }
   });
 
   socket.on('new message', (data) => {
@@ -39,5 +54,12 @@ $(document).ready(() => {
         <p class="message-text">${data.message}</p>
       </div>
     `);
+  });
+
+  socket.on('user has left', (onlineUsers) => {
+    $('.users-online').empty();
+    for (username in onlineUsers) {
+      $('.users-online').append(`<p>${username}</p>`);
+    }
   });
 });
