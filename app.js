@@ -1,4 +1,3 @@
-// app.js
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -6,9 +5,10 @@ const server = require('http').Server(app);
 // Socket.io
 const io = require('socket.io')(server);
 let onlineUsers = {};
+let channels = { "General": [] };
+
 io.on("connection", (socket) => {
-  // This file will be read on new socket connections
-  require('./sockets/chat.js')(io, socket, onlineUsers);
+  require('./sockets/chat.js')(io, socket, onlineUsers, channels);
 });
 
 // Express View Engine for Handlebars
